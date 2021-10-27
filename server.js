@@ -6,8 +6,8 @@ const bodyParser = require('body-parser');
 const PORT = 8080;
 
 
-app.user(bodyParser.urlencoded({ extended: false }));
-app.user(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.listen(PORT, () => {
     console.log(`Server is running on Port ${PORT}`);
 });
@@ -80,6 +80,8 @@ app.post("/api/user/", (req, res, next) => {
         })
     });
 })
+
+
 
 
 
