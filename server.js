@@ -1,8 +1,13 @@
 const express = require('express');
 const app = express();
 const db = require('./database.js');
+const md5 = require('md5');
+const bodyParser = require('body-parser');
 const PORT = 8080;
 
+
+app.user(bodyParser.urlencoded({ extended: false }));
+app.user(bodyParser.json());
 app.listen(PORT, () => {
     console.log(`Server is running on Port ${PORT}`);
 });
@@ -42,6 +47,39 @@ app.get('/api/user/:id', (req, res, next) => {
         });
     })
 });
+
+
+app.post("/api/user/", (req, res, next) => {
+    var errors = []
+    if (!req.body.password) {
+        errors.push("No password specified");
+    }
+    if (!req.body.email) {
+        errors.push("No email specified");
+    }
+    if (errors.length) {
+        res.status(400).json({ "error": errors.join(",") });
+        return;
+    }
+    var data = {
+        name: req.body.name,
+        email: req.body.email,
+        password: md5(req.body.password)
+    }
+    var sql = 'INSERT INTO user (name, email, password) VALUES (?,?,?)'
+    var params = [data.name, data.email, data.password]
+    db.run(sql, params, function (err, result) {
+        if (err) {
+            res.status(400).json({ "error": err.message })
+            return;
+        }
+        res.json({
+            "message": "success",
+            "data": data,
+            "id": this.lastID
+        })
+    });
+})
 
 
 
